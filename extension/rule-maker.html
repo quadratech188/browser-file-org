@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title></title>
+		<link href="rule-maker.css" rel="stylesheet">
+		<script src="rule-maker.js"></script>
+	</head>
+	<body>
+		<template id="attr-template">
+			<div class="attr-row">
+				<input type="text">
+				<p>|</p>
+				<input type="text">
+				<button class="attr-del">x</button>
+			</div>
+		</template>
+
+		<template id="rule-template">
+			<div class="rule">
+				<div class="rule-inner">
+					<button class="attr-new">Add new attribute</button>
+					<div class="attr-grid"></div>
+					<hr>
+					<div class="dest-row">
+						<p>Move to:</p>
+						<input class="rule-dest" type="text">
+					</div>
+				</div>
+				<button class="rule-del">x</button>
+			</div>
+		</template>
+		<h1>Rules</h1>
+		<button class="save">Save</button>
+		<hr>
+		<button class="rule-new">Add new rule</button>
+		<div id="rules">
+
+		</div>
+	</body>
+</html>

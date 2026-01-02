@@ -1,6 +1,12 @@
+// @ts-check
+
+/**
+ * @param {any} event
+ * @param {any} cond
+ */
 async function listen_once(event, cond) {
 	return new Promise((resolve) => {
-		function listen(item) {
+		function listen(/** @type any */ item) {
 			if (!cond(item)) {
 				return;
 			}
@@ -10,13 +16,4 @@ async function listen_once(event, cond) {
 		}
 		event.addListener(listen);
 	})
-}
-
-function get_classroom_id(url) {
-	const re = /https:\/\/classroom\.google\.com(?:\/u\/\d+)?\/c\/(?<id>[^\/]+)/
-	const match = url.match(re);
-	if (match === null) {
-		throw `Failed to parse current url: ${url}`;
-	}
-	return match.groups.id;
 }

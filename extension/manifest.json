@@ -15,14 +15,31 @@
 
 	"content_scripts": [
 		{
-			"matches": ["*://classroom.google.com/*"],
+			"matches": ["<all_urls>"],
 			"css": ["style.css"],
-			"js": ["browser-polyfill.min.js", "util.js", "content-actions.js", "inject-links.js"]
+			"js": [
+				"browser-polyfill.min.js",
+				"index.js",
+				"extractor-interface.js"
+			]
 		}
 	],
 
+	"options_ui": {
+		"page": "rule-maker.html",
+		"open_in_tab": true
+	},
+
 	"background": {
-		"scripts": ["util.js", "move-download.js", "background-actions.js"],
+		"scripts": [
+			"browser-polyfill.min.js",
+			"util.js",
+			"downloaders.js",
+			"background-listener.js",
+			"pattern.js",
+			"download-mover.js"
+
+		],
 		"service_worker": "background-actions.js"
 	},
 
@@ -35,6 +52,12 @@
 		{
 			"resources": ["path-chooser.html"],
 			"matches": ["*://classroom.google.com/*"]
+		},
+		{
+			"resources": [
+				"extractors/google-classroom/content.js"
+			],
+			"matches": ["<all_urls>"]
 		}
 	],
 

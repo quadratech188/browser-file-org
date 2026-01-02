@@ -1,0 +1,63 @@
+// @ts-check
+
+browser.downloads.onChanged.addListener(async (item) => {
+	if (!('state' in item)) {
+		return false
+	}
+	if (item.state.current !== 'complete') {
+		return false
+	}
+
+	const id = item.id
+	const download_item = (await browser.downloads.search({id}))[0]
+
+	const key = `file_attrs:${id}`
+	/** @type FileAttrs */
+	const attrs = (await browser.storage.local.get(key))[key]
+	await browser.storage.local.remove(key)
+
+	console.log(`Found download with attrs:`)
+	console.log(attrs)
+
+	/** @type FileAttrs */
+	const default_value = {
+		filename: download_item.filename,
+		url: download_item.url
+	}
+	for (const [k, v] of Object.entries(default_value)) {
+		if (!(k in attrs)) {
+			attrs[k] = v
+		}
+	}
+
+	/** @type Rule[] */
+	const rules = (await browser.storage.local.get('rules'))['rules']
+	const rule = rules.values()
+		.map(rule_obj => new Rule(rule_obj))
+		.find(rule => rule.matches(attrs))
+	if (rule === undefined) return
+
+	console.log(`Matches this rule:`)
+	console.log(rule.serialize())
+
+	const dest_path = rule.get_path(attrs)
+	console.log(`Moving to ${dest_path}`)
+
+	await browser.runtime.sendNativeMessage('gcu_file_mover', {
+		file: download_item.filename,
+		dest: dest_path,
+		options: {
+			create_dest_folder: false,
+			replace_dest: false,
+			delete_on_error: true
+		}
+	}).then(result => {
+		if (result.type === 'success') {
+			console.log(`Moved to ${dest_path}`)
+			return
+		}
+		console.log(result)
+	}), e => {
+		console.log(e)
+	}
+})

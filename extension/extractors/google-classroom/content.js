@@ -1,6 +1,24 @@
+// @ts-check
+
 const FILE_DIV_SELECTOR = 'div.luto0c, div.t2wIBc';
 const FILENAME_SELECTOR = 'div.A6dC2c.QDKOcc.UtdKPb.U0QIdc';
 
+/**
+ * @param {string} url
+ * @returns {string}
+ */
+function get_classroom_id(url) {
+	const re = /https:\/\/classroom\.google\.com(?:\/u\/\d+)?\/c\/(?<id>[^\/]+)/
+	const match = url.match(re);
+	if (match === null) {
+		throw `Failed to parse current url: ${url}`;
+	}
+	return match.groups.id;
+}
+
+/**
+ * @param {HTMLDivElement} div 
+ */
 function add_button_div(div) {
 	const url = div.querySelector('a').href;
 
@@ -17,22 +35,18 @@ function add_button_div(div) {
 	// https://sites.google.com/site/gdocs2direct/
 	const download_url = `https://drive.usercontent.google.com/download?id=${file_id}&export=download&authuser=${authuser}`
 
-	const filename = div.querySelector(FILENAME_SELECTOR).innerHTML;
+	const filename = /** @type {HTMLDivElement} */(div.querySelector(FILENAME_SELECTOR)).innerText;
 
 	let extension_div = document.createElement('div');
 	extension_div.classList.add('gcu-download-extension');
 
-	let direct_download_btn = document.createElement('button');
-	direct_download_btn.textContent = "Direct Download"
-	direct_download_btn.addEventListener('click', () => {
-		direct_download(download_url);
-	})
-	extension_div.appendChild(direct_download_btn);
-
-	let folder_download_btn = document.createElement('button');
+	const folder_download_btn = document.createElement('button');
 	folder_download_btn.textContent = "Download to Folder"
 	folder_download_btn.addEventListener('click', () => {
-		folder_download(download_url, filename);
+		send_download('tab', download_url, {
+			filename: filename,
+			classroom_id: get_classroom_id(window.location.href)
+		})
 	})
 	extension_div.appendChild(folder_download_btn);
 
@@ -43,16 +57,18 @@ const observer = new MutationObserver(mutations => {
 	mutations.forEach(mutation => {
 		mutation.addedNodes.forEach(node => {
 			if (node.nodeType !== Node.ELEMENT_NODE) return;
+			const element = /** @type Element */ (node)
 
-			if (node.matches(FILE_DIV_SELECTOR)) {
-				add_button_div(node);
+			if (element.matches(FILE_DIV_SELECTOR)) {
+				add_button_div(/** @type HTMLDivElement */ (element));
 			}
 		})
 		mutation.removedNodes.forEach(node => {
 			if (node.nodeType !== Node.ELEMENT_NODE) return;
+			const element = /** @type Element */ (node)
 
-			if (node.classList.contains('gcu-download-extension')) {
-				add_button_div(mutation.target);
+			if (element.classList.contains('gcu-download-extension')) {
+				add_button_div(/** @type HTMLDivElement */ (mutation.target));
 			}
 		})
 	});
@@ -62,7 +78,3 @@ observer.observe(document.body, {
 	childList: true,
 	subtree: true,
 })
-
-let toast_div = document.createElement('div')
-toast_div.id = 'gcu-toast-container';
-document.body.appendChild(toast_div);
