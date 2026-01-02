@@ -12,33 +12,35 @@ else {
 }
 
 /**
- * @typedef DownloadRequest
- * @property {'tab'|'browser'} download_type
- * @property {any} download_args
- * @property {FileAttrs} file_attrs
+ * @typedef {RequestedDownload & {
+ * 	meta: {
+ * 		id: number,
+ * 		start_time: number
+ * 	}
+ * }} EnqueuedDownload
  */
 
 browser.runtime.onConnect.addListener((port) => {
-	port.onMessage.addListener(async (/** @type DownloadRequest */message) => {
+	port.onMessage.addListener(async (/** @type RequestedDownload */message) => {
 		let id
-		switch (message.download_type) {
+		switch (message.meta.download_config.type) {
 			case 'tab':
-				id = await tab_download(message.download_args)
+				id = await tab_download(message.meta.download_config.args)
 				break
 			case 'browser':
-				id = await browser_download(message.download_args)
+				id = await browser_download(message.meta.download_config.args)
 				break
 		}
-		const storage = {}
-		storage[`file_attrs:${id}`] = {
-			file_attrs: message.file_attrs,
+		/** @type EnqueuedDownload */
+		const next = {
+			...message,
 			meta: {
+				...message.meta,
 				id: id,
-				start_time: Date.now(),
-				download_type: message.download_type,
-				download_args: message.download_args
+				start_time: Date.now()
 			}
 		}
-		browser.storage.local.set(storage)
+		next[`file_attrs:${id}`] = next
+		browser.storage.local.set(next)
 	})
 })

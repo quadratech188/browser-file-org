@@ -1,18 +1,34 @@
 /**
- * @param {'tab'|'browser'} download_type
- * @param {any} download_args
- * @param {Record<string, string>} file_attrs 
+ * @typedef {{
+ *	type: 'tab'|'browser',
+ *	args: any
+ * }} DownloadConfig
+ *
+ * @typedef {{
+ *	attrs: Record<string, string>,
+ *	meta: {
+ *		download_config: DownloadConfig
+ *	}
+ * }} RequestedDownload
  */
-function send_download(download_type, download_args, file_attrs) {
+
+/**
+ * @param {DownloadConfig} download_config
+ * @param {Record<string, string>} attrs 
+ */
+function send_download(download_config, attrs) {
 	const port = browser.runtime.connect({
 		name: 'download_request'
 	})
 	port.onMessage.addListener(() => {
 		// TODO
 	})
-	port.postMessage({
-		download_type: download_type,
-		download_args: download_args,
-		file_attrs: file_attrs
-	})
+	/** @type RequestedDownload */
+	const message = {
+		attrs,
+		meta: {
+			download_config
+		}
+	}
+	port.postMessage(message)
 }
