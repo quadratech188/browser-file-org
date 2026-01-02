@@ -19,9 +19,11 @@ browser.downloads.onChanged.addListener(async (item) => {
 	console.log(`Found download with attrs:`)
 	console.log(attrs)
 
+
+	const path = download_item.filename.split('/')
 	/** @type FileAttrs */
 	const default_value = {
-		filename: download_item.filename,
+		filename: path[path.length - 1],
 		url: download_item.url
 	}
 	for (const [k, v] of Object.entries(default_value)) {
@@ -60,4 +62,18 @@ browser.downloads.onChanged.addListener(async (item) => {
 	}), e => {
 		console.log(e)
 	}
+
+	/** @type FileAttrs[] */
+	const history = (await browser.storage.local.get({
+		history: []
+	}))['history']
+
+	history.push(attrs)
+	if (history.length > 1000) {
+		history.shift()
+	}
+
+	await browser.storage.local.set({
+		history: history
+	})
 })

@@ -10,13 +10,12 @@
 	<body>
 		<template id="attr-template">
 			<div class="attr-row">
-				<input type="text">
+				<input size=5 type="text">
 				<p>|</p>
-				<input type="text">
+				<input size=5 type="text">
 				<button class="attr-del">x</button>
 			</div>
 		</template>
-
 		<template id="rule-template">
 			<div class="rule">
 				<div class="rule-inner">
@@ -25,18 +24,48 @@
 					<hr>
 					<div class="dest-row">
 						<p>Move to:</p>
-						<input class="rule-dest" type="text">
+						<input size=5 class="rule-dest" type="text">
 					</div>
 				</div>
 				<button class="rule-del">x</button>
 			</div>
 		</template>
-		<h1>Rules</h1>
+		<template id="history-attr-template">
+			<tr>
+				<td></td>
+				<td></td>
+			</tr>
+		</template>
+		<template id="history-template">
+			<div class="history">
+				<div class="rule-inner">
+					<table class="history-attr-grid"></table>
+					<hr>
+					<div class="dest-row">
+						<p>Moved to:</p>
+						<a class="history-dest"></a>
+					</div>
+				</div>
+				<div class="history-buttons">
+					<button class="history-to-rule">Turn into rule (TODO!)</button>
+					<button class="history-redownload">Redownload (TODO!)</button>
+				</div>
+			</div>
+		</template>
+
 		<button class="save">Save</button>
 		<hr>
-		<button class="rule-new">Add new rule</button>
-		<div id="rules">
-
+		<div id="frame">
+			<div id="rules-outer">
+				<h1>Rules</h1>
+				<button class="rule-new">Add new rule</button>
+				<div id="rules"></div>
+			</div>
+			<div id="history-outer">
+				<h1>History</h1>
+				<div id="history">
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
