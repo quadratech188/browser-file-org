@@ -12,8 +12,9 @@ browser.downloads.onChanged.addListener(async (item) => {
 	const download_item = (await browser.downloads.search({id}))[0]
 
 	const key = `file_attrs:${id}`
+	const data = (await browser.storage.local.get(key))[key]
 	/** @type FileAttrs */
-	const attrs = (await browser.storage.local.get(key))[key]
+	const attrs = data.file_attrs
 	await browser.storage.local.remove(key)
 
 	console.log(`Found download with attrs:`)
@@ -31,6 +32,19 @@ browser.downloads.onChanged.addListener(async (item) => {
 			attrs[k] = v
 		}
 	}
+
+	const history = (await browser.storage.local.get({
+		history: []
+	}))['history']
+
+	history.push(data)
+	if (history.length > 1000) {
+		history.shift()
+	}
+
+	await browser.storage.local.set({
+		history: history
+	})
 
 	/** @type Rule[] */
 	const rules = (await browser.storage.local.get('rules'))['rules']
@@ -63,17 +77,4 @@ browser.downloads.onChanged.addListener(async (item) => {
 		console.log(e)
 	}
 
-	/** @type FileAttrs[] */
-	const history = (await browser.storage.local.get({
-		history: []
-	}))['history']
-
-	history.push(attrs)
-	if (history.length > 1000) {
-		history.shift()
-	}
-
-	await browser.storage.local.set({
-		history: history
-	})
 })

@@ -30,7 +30,15 @@ browser.runtime.onConnect.addListener((port) => {
 				break
 		}
 		const storage = {}
-		storage[`file_attrs:${id}`] = message.file_attrs
+		storage[`file_attrs:${id}`] = {
+			file_attrs: message.file_attrs,
+			meta: {
+				id: id,
+				start_time: Date.now(),
+				download_type: message.download_type,
+				download_args: message.download_args
+			}
+		}
 		browser.storage.local.set(storage)
 	})
 })
