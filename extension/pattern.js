@@ -5,6 +5,11 @@
  * 	filename: string,
  * 	url: string
  * }} FileAttrs
+ *
+ * @typedef {{
+ * 	conds: Record<string, string>,
+ * 	dest: string
+ * }} SerializedRule
  */
 
 class Rule {
@@ -14,13 +19,13 @@ class Rule {
 	dest;
 
 	/**
-	 * @param {*} obj 
+	 * @param {SerializedRule} obj 
 	 */
 	constructor(obj) {
 		this.dest = obj.dest
 		this.conds = new Map()
 
-		for (const [k, v] of Object.entries(obj)) {
+		for (const [k, v] of Object.entries(obj.conds)) {
 			this.conds[k] = new RegExp(v)
 		}
 	}
@@ -49,7 +54,11 @@ class Rule {
 		return `${this.dest}/${file_attrs.filename}`
 	}
 
+	/**
+	 * @returns {SerializedRule}
+	 */
 	serialize() {
+		/** @type Record<string, string> */
 		const conds = {}
 		for (const [k, v] of this.conds) {
 			conds[k] = v.source

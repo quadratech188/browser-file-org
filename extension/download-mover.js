@@ -3,8 +3,11 @@
 /**
  * @typedef {{
  * 	attrs: FileAttrs,
- * 	meta: EnqueuedDownload['meta'] & {
- * 		end_time: number,
+ * 	meta: {
+ * 		id: number,
+ * 		start_time: string,
+ * 		end_time: string,
+ * 		reproduce?: DownloadConfig,
  * 		moved: boolean,
  * 		dest: string
  * 	}
@@ -31,15 +34,14 @@ browser.downloads.onChanged.addListener(async (item) => {
 		url: download_item.url
 	}
 
-	/** @type EnqueuedDownload */
+	/** @type RequestedDownload */
 	const enqueued = (await browser.storage.local.get(key))[key]
-	// For now, we don't support downloads that we didn't trigger
-	if (enqueued === undefined) return
 	await browser.storage.local.remove(key)
 
-
-	for (const [k, v] of Object.entries(enqueued.attrs)) {
-		attrs[k] = v
+	if (enqueued !== undefined) {
+		for (const [k, v] of Object.entries(enqueued.attrs)) {
+			attrs[k] = v
+		}
 	}
 
 	console.log(`Found download with attrs:`)
@@ -51,14 +53,25 @@ browser.downloads.onChanged.addListener(async (item) => {
 		.map(rule_obj => new Rule(rule_obj))
 		.find(rule => rule.matches(attrs))
 
+	let dest = download_item.filename
+	if (rule !== undefined) {
+		dest = rule.get_path(attrs)
+
+		console.log(`Matches this rule:`)
+		console.log(rule.serialize())
+		console.log(`Moving to ${dest}`)
+	}
+
 	/** @type FinishedDownload */
 	const next = {
 		attrs: attrs,
 		meta: {
-			...enqueued.meta,
-			end_time: Date.now(),
+			id: id,
+			start_time: download_item.startTime,
+			end_time: download_item.endTime,
+			reproduce: enqueued === undefined? enqueued.meta.reproduce: undefined,
 			moved: rule !== undefined,
-			dest: (rule !== undefined)? rule.get_path(attrs): download_item.filename
+			dest: dest
 		}
 	}
 
@@ -66,27 +79,20 @@ browser.downloads.onChanged.addListener(async (item) => {
 	const history = (await browser.storage.local.get({
 		history: []
 	}))['history']
-
 	history.push(next)
 	if (history.length > 1000) {
 		history.shift()
 	}
-
 	await browser.storage.local.set({
 		history: history
 	})
 
 	if (rule === undefined) return
 
-	console.log(`Matches this rule:`)
-	console.log(rule.serialize())
-
-	const dest_path = rule.get_path(attrs)
-	console.log(`Moving to ${dest_path}`)
 
 	await browser.runtime.sendNativeMessage('gcu_file_mover', {
 		file: download_item.filename,
-		dest: dest_path,
+		dest: dest,
 		options: {
 			create_dest_folder: false,
 			replace_dest: false,
@@ -94,7 +100,7 @@ browser.downloads.onChanged.addListener(async (item) => {
 		}
 	}).then(result => {
 		if (result.type === 'success') {
-			console.log(`Moved to ${dest_path}`)
+			console.log(`Moved to ${dest}`)
 			return
 		}
 		console.log(result)

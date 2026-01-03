@@ -7,7 +7,7 @@
  * @typedef {{
  *	attrs: Record<string, string>,
  *	meta: {
- *		download_config: DownloadConfig
+ *		reproduce: DownloadConfig
  *	}
  * }} RequestedDownload
  */
@@ -27,7 +27,7 @@ function send_download(download_config, attrs) {
 	const message = {
 		attrs,
 		meta: {
-			download_config
+			reproduce: download_config
 		}
 	}
 	port.postMessage(message)

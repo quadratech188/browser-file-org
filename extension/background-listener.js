@@ -11,36 +11,19 @@ else {
 	importScripts('move-download.js')
 }
 
-/**
- * @typedef {RequestedDownload & {
- * 	meta: {
- * 		id: number,
- * 		start_time: number
- * 	}
- * }} EnqueuedDownload
- */
-
 browser.runtime.onConnect.addListener((port) => {
 	port.onMessage.addListener(async (/** @type RequestedDownload */message) => {
 		let id
-		switch (message.meta.download_config.type) {
+		switch (message.meta.reproduce.type) {
 			case 'tab':
-				id = await tab_download(message.meta.download_config.args)
+				id = await tab_download(message.meta.reproduce.args)
 				break
 			case 'browser':
-				id = await browser_download(message.meta.download_config.args)
+				id = await browser_download(message.meta.reproduce.args)
 				break
 		}
-		/** @type EnqueuedDownload */
-		const next = {
-			...message,
-			meta: {
-				...message.meta,
-				id: id,
-				start_time: Date.now()
-			}
-		}
-		next[`file_attrs:${id}`] = next
-		browser.storage.local.set(next)
+		const storage = {}
+		storage[`file_attrs:${id}`] = message
+		browser.storage.local.set(storage)
 	})
 })
