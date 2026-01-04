@@ -4,8 +4,6 @@
 	"version": "0.0.1",
 	"description": "Utilities for Google Classroom",
 
-	"key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxaYhEXUxqr1qlu5OK7JTrin+71FMbGRNzbAiyFStSSP5oU8KLgNedcfrwCD50SbyfbvwsBHR0crnPlA9BRxZNWeCo3+PuQt/o3G81HobplAsLoJV6KHThRmBHLnNv5RpUeoioX5fQtHkBNaHMkFpgyaYk002zwchO7Wun5jXvMfa7e9iTpn+S0D8UipOVEbMfCufxc1YXjD3/Y4Z1Dbifk4WUqHDJd88GgzgZAwgE/Nm7I9dErlttmwhMMLdAytxrgGQN0lbIH+JptKV6PpFIr/joWzb/3Tkwk5+TwwzhLcC8eRkHjsDWbolaoef6PgoGmMDAbbspSlm3tmti+QSUQIDAQAB",
-
 	"permissions": [
 		"downloads",
 		"nativeMessaging",
@@ -63,7 +61,7 @@
 
 	"browser_specific_settings": {
 		"gecko": {
-			"id": "google-classroom-utils@quadratech188"
+			"id": "browser-file-org@quadratech188"
 		}
 	}
 }
