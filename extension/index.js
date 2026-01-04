@@ -20,8 +20,6 @@
 		extractors: default_extractors
 	}))['extractors']
 
-	console.log(extractors)
-
 	const url = window.location.href
 
 	for (const cond of extractors) {

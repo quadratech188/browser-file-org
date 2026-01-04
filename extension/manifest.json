@@ -16,6 +16,8 @@
 			"matches": ["<all_urls>"],
 			"js": [
 				"browser-polyfill.min.js",
+				"dist/exports.iife.js",
+				"pattern.js",
 				"index.js",
 				"extractor-interface.js"
 			]

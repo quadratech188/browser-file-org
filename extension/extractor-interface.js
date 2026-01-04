@@ -38,9 +38,14 @@ async function add_rule(rule, prompt = false) {
 	if (prompt == false) {
 		await browser.runtime.sendMessage({
 			type: 'add_rule',
-			body: rule
+			body: rule.serialize()
 		})
 		return
 	}
-	throw 'Not Implemented!'
+
+	create_rule_popup(rule).then(async () => {
+		await add_rule(rule, false)
+	}, () => {
+		// The user just closed the window, don't care
+	})
 }

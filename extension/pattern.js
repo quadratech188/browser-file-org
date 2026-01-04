@@ -19,9 +19,9 @@ class Rule {
 	dest;
 
 	/**
-	 * @param {SerializedRule} obj 
+	 * @param {SerializedRule} obj
 	 */
-	constructor(obj) {
+	constructor(obj = {dest: '', conds: {}}) {
 		this.dest = obj.dest
 		this.conds = new Map()
 
