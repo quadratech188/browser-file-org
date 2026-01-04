@@ -47,8 +47,10 @@ browser.downloads.onChanged.addListener(async (item) => {
 	console.log(`Found download with attrs:`)
 	console.log(attrs)
 
-	/** @type Rule[] */
-	const rules = (await browser.storage.local.get('rules'))['rules']
+	/** @type SerializedRule[] */
+	const rules = (await browser.storage.local.get({
+		rules: []
+	}))['rules']
 	const rule = rules.values()
 		.map(rule_obj => new Rule(rule_obj))
 		.find(rule => rule.matches(attrs))
