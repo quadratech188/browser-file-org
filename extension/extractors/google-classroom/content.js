@@ -43,7 +43,10 @@ function add_button_div(div) {
 	const folder_download_btn = document.createElement('button');
 	folder_download_btn.textContent = "Download to Folder"
 	folder_download_btn.addEventListener('click', () => {
-		send_download('tab', download_url, {
+		send_download({
+			type: 'tab',
+			args: download_url
+		}, {
 			filename: filename,
 			classroom_id: get_classroom_id(window.location.href)
 		})
