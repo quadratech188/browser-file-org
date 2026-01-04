@@ -16,7 +16,7 @@
  * @param {DownloadConfig} download_config
  * @param {Record<string, string>} attrs 
  */
-function send_download(download_config, attrs) {
+async function send_download(download_config, attrs) {
 	/** @type RequestedDownload */
 	const request = {
 		attrs,
@@ -24,18 +24,23 @@ function send_download(download_config, attrs) {
 			reproduce: download_config
 		}
 	}
-	browser.runtime.sendMessage({
-		type: 'add_rule',
+	await browser.runtime.sendMessage({
+		type: 'send_download',
 		body: request
 	})
 }
 
 /**
  * @param {Rule} rule 
+ * @param {boolean} prompt
  */
-function add_rule(rule) {
-	browser.runtime.sendMessage({
-		type: 'add_rule',
-		body: rule
-	})
+async function add_rule(rule, prompt = false) {
+	if (prompt == false) {
+		await browser.runtime.sendMessage({
+			type: 'add_rule',
+			body: rule
+		})
+		return
+	}
+	throw 'Not Implemented!'
 }
