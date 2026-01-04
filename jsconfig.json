@@ -3,6 +3,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
+    "strictNullChecks": true,
     "checkJs": true,
     "lib": ["ESNext", "dom", "dom.iterable"],
     "types": ["firefox-webext-browser"]
