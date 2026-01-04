@@ -13,14 +13,14 @@ function get_classroom_id(url) {
 	if (match === null) {
 		throw `Failed to parse current url: ${url}`;
 	}
-	return match.groups.id;
+	return /** @type string */ (match.groups?.id);
 }
 
 /**
  * @param {HTMLDivElement} div 
  */
 function add_button_div(div) {
-	const url = div.querySelector('a').href;
+	const url = /** @type string */ (div.querySelector('a')?.href);
 
 	const re = /https:\/\/drive\.google\.com\/file\/d\/([^\/]+)\/view\?usp=classroom_web&authuser=(\d+)/;
 	const match = url.match(re);
@@ -42,8 +42,8 @@ function add_button_div(div) {
 
 	const folder_download_btn = document.createElement('button');
 	folder_download_btn.textContent = "Download to Folder"
-	folder_download_btn.addEventListener('click', () => {
-		send_download({
+	folder_download_btn.addEventListener('click', async () => {
+		await send_download({
 			type: 'tab',
 			args: download_url
 		}, {
