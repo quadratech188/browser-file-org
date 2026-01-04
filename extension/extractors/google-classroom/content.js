@@ -2,6 +2,7 @@
 
 const FILE_DIV_SELECTOR = 'div.luto0c, div.t2wIBc';
 const FILENAME_SELECTOR = 'div.A6dC2c.QDKOcc.UtdKPb.U0QIdc';
+const HEADER_LIST_SELECTOR = 'h1.Hwv4mb.rIyhE'
 
 /**
  * @param {string} url
@@ -14,6 +15,24 @@ function get_classroom_id(url) {
 		throw `Failed to parse current url: ${url}`;
 	}
 	return /** @type string */ (match.groups?.id);
+}
+
+/**
+ * @param {HTMLDivElement} div 
+ */
+function add_rule_btn(div) {
+	const btn = document.createElement('button')
+	btn.classList.add('gcu-rule-btn');
+	btn.textContent = 'Make this Classroom into a Rule'
+	btn.addEventListener('click', async () => {
+		await add_rule(new Rule({
+			conds: {
+				classroom_id: get_classroom_id(window.location.href)
+			},
+			dest: ''
+		}), true)
+	})
+	div.appendChild(btn)
 }
 
 /**
@@ -38,7 +57,7 @@ function add_button_div(div) {
 	const filename = /** @type {HTMLDivElement} */(div.querySelector(FILENAME_SELECTOR)).innerText;
 
 	let extension_div = document.createElement('div');
-	extension_div.classList.add('gcu-download-extension');
+	extension_div.classList.add('gcu-btn-div');
 
 	const folder_download_btn = document.createElement('button');
 	folder_download_btn.textContent = "Download to Folder"
@@ -65,13 +84,19 @@ const observer = new MutationObserver(mutations => {
 			if (element.matches(FILE_DIV_SELECTOR)) {
 				add_button_div(/** @type HTMLDivElement */ (element));
 			}
+			if (element.matches(HEADER_LIST_SELECTOR)) {
+				add_rule_btn(/** @type HTMLDivElement */ (element));
+			}
 		})
 		mutation.removedNodes.forEach(node => {
 			if (node.nodeType !== Node.ELEMENT_NODE) return;
 			const element = /** @type Element */ (node)
 
-			if (element.classList.contains('gcu-download-extension')) {
+			if (element.classList.contains('gcu-btn-div')) {
 				add_button_div(/** @type HTMLDivElement */ (mutation.target));
+			}
+			if (element.classList.contains('gcu-rule-btn')) {
+				add_rule_btn(/** @type HTMLDivElement */ (mutation.target));
 			}
 		})
 	});
@@ -80,4 +105,8 @@ const observer = new MutationObserver(mutations => {
 observer.observe(document.body, {
 	childList: true,
 	subtree: true,
+})
+
+document.querySelectorAll(HEADER_LIST_SELECTOR).forEach((e) => {
+	add_rule_btn(/** @type HTMLDivElement */ (e))
 })

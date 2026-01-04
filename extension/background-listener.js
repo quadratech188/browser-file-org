@@ -1,10 +1,11 @@
-browser.runtime.onMessage.addListener(message => {
+browser.runtime.onMessage.addListener(async message => {
+	console.log(message)
 	switch(message.type) {
 		case 'send_download':
-			handle_send_download(message.body)
+			await handle_send_download(message.body)
 			break
 		case 'add_rule':
-			handle_add_rule(message.body)
+			await handle_add_rule(message.body)
 			break
 	}
 })

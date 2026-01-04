@@ -1,10 +1,14 @@
 <script>
-	let {serialized_rule = {
-		conds: {},
-		dest: ''
-	}, onclose = () => {}} = $props();
 	import Rule from './Rule.svelte'
 
+	let {serialized_rule = $bindable({
+		conds: {},
+		dest: ''
+	}), onclose = () => {}} = $props();
+
+	function close() {
+		onclose($state.snapshot(serialized_rule))
+	}
 </script>
 
 <div class="browser-file-org-veil"
@@ -16,7 +20,7 @@
 			<Rule bind:serialized_rule={serialized_rule}/>
 		</div>
 		<div>
-			<button style="float: right" onclick={() => {onclose(serialized_rule)}}>Create</button>
+			<button style="float: right" onclick={close}>Create</button>
 		</div>
 	</div>
 </div>

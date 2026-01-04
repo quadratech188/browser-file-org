@@ -43,8 +43,8 @@ async function add_rule(rule, prompt = false) {
 		return
 	}
 
-	create_rule_popup(rule).then(async () => {
-		await add_rule(rule, false)
+	create_rule_popup(rule).then(async new_rule => {
+		await add_rule(new_rule, false)
 	}, () => {
 		// The user just closed the window, don't care
 	})

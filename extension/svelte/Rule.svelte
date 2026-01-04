@@ -2,36 +2,32 @@
 	let { serialized_rule = $bindable({
 		conds: {},
 		dest: ''
-	})} = $props();
+	})} = $props()
 
 	/** @type [string, string][] */
-	let conds = $state([])
-	for (const [k, v] of Object.entries(serialized_rule.conds)) {
-		conds.push([k, v])
-	}
+	let conds = $state(Object.entries(serialized_rule.conds))
 	let dest = $state(serialized_rule.dest)
 
-
-	function sync() {
+	$effect(() => {
 		serialized_rule.conds = Object.fromEntries(conds)
 		serialized_rule.dest = dest
-	}
+	})
 </script>
 
 <div class="frame">
-	<button onclick={() => {conds.unshift(['', '']); sync()}}>Add new attribute</button>
+	<button onclick={() => {conds.unshift(['', ''])}}>Add new attribute</button>
 	<div class="grid">
 		{#each conds as cond, index}
-		<input bind:value={cond[0]} oninput={sync} type="text" size=5>
+		<input bind:value={cond[0]} type="text" size=5>
 		<p>|</p>
-		<input bind:value={cond[1]} oninput={sync} type="text" size=5>
-		<button onclick={() => {conds.splice(index, 1); sync()}}>x</button>
+		<input bind:value={cond[1]} type="text" size=5>
+		<button onclick={() => {conds.splice(index, 1)}}>x</button>
 		{/each}
 	</div>
 	<hr>
 	<div class="dest-row">
 		<p>Move to:</p>
-		<input bind:value={dest} oninput={sync} class="dest" type="text" size=5>
+		<input bind:value={dest} class="dest" type="text" size=5>
 	</div>
 </div>
 

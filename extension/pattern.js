@@ -26,7 +26,7 @@ class Rule {
 		this.conds = new Map()
 
 		for (const [k, v] of Object.entries(obj.conds)) {
-			this.conds[k] = new RegExp(v)
+			this.conds.set(k, new RegExp(v))
 		}
 	}
 
