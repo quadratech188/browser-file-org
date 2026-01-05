@@ -1,5 +1,4 @@
 browser.runtime.onMessage.addListener(async message => {
-	console.log(message)
 	switch(message.type) {
 		case 'send_download':
 			await handle_send_download(message.body)

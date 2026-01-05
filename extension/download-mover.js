@@ -8,7 +8,6 @@
  * 		start_time: string,
  * 		end_time: string,
  * 		reproduce: DownloadConfig | undefined,
- * 		matched: boolean,
  * 		dest: string,
  * 		status: 'not_moved' | 'moved' | 'failed',
  * 		move_error: string | undefined,
@@ -91,7 +90,7 @@ browser.downloads.onChanged.addListener(async (item) => {
 		}
 		catch (e) {
 			status = 'failed'
-			move_error = e
+			move_error = `${e}`
 		}
 	}
 
@@ -106,13 +105,12 @@ browser.downloads.onChanged.addListener(async (item) => {
 		meta: {
 			id: id,
 			start_time: /** @type string */ (download_item.startTime),
-			end_time: /** @type string */ (download_item.endTime),
+			end_time: /** @type string */ new Date().toISOString(),
 			reproduce: enqueued !== undefined? enqueued.meta.reproduce: undefined,
-			matched: rule !== undefined,
 			dest: dest,
 			status: status,
 			move_error: move_error,
-			location: move_error !== undefined? dest: download_item.filename
+			location: status === 'moved'? dest: download_item.filename
 		}
 	}
 
