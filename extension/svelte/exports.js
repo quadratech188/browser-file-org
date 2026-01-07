@@ -1,5 +1,6 @@
 import {mount, unmount} from 'svelte'
 import Popup from './Popup.svelte'
+import Settings from './Settings.svelte'
 
 /**
  * @param {Rule} rule
@@ -29,5 +30,11 @@ window.create_rule_popup = function(rule) {
 				}
 			}
 		})
+	})
+}
+
+window.open_settings = function() {
+	mount(Settings, {
+		target: document.body
 	})
 }

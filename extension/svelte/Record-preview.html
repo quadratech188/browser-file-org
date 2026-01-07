@@ -1,0 +1,29 @@
+<script type="module">
+	import { mount } from 'svelte'
+	import Record from './Record.svelte'
+	mount(Record, {
+		target: document.body,
+		props: {
+			record: {
+		    "attrs": {
+		      "filename": "21단원 보충 자료.pdf",
+		      "url": "https://drive.usercontent.google.com/download?id=1FcnTlDi3iVDxQqtZJkDgarLyW6-k4lYa&export=download&authuser=0",
+		      "classroom_id": "ODAxMjAxNDI2ODgx"
+		    },
+		    "meta": {
+		      "id": 17,
+		      "start_time": "2026-01-05T08:23:15.346Z",
+		      "end_time": "2026-01-05T08:23:16.017Z",
+		      "reproduce": {
+			"type": "tab",
+			"args": "https://drive.usercontent.google.com/download?id=1FcnTlDi3iVDxQqtZJkDgarLyW6-k4lYa&export=download&authuser=0"
+		      },
+		      "dest": "/home/quadratech/Downloads/21단원 보충 자료(47).pdf",
+		      "status": "not_moved",
+		      "location": "/home/quadratech/Downloads/21단원 보충 자료(47).pdf"
+		    }
+		  },
+		  	on_new_rule: console.log
+		}
+	})
+</script>
