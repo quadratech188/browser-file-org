@@ -86,10 +86,14 @@
 		</span>
 		{/if}
 		{/if}
-
 	</p>
+	
+	<div class="horiz">
+		<p style="white-space: nowrap;">Last seen:&nbsp;</p>
+		<p class="filepath" title={record.meta.location}>{record.meta.location}</p>
+	</div>
 
-	<div class="button-container">
+	<div class="horiz">
 		<button>Redownload (TODO)</button>
 		<button>Move again (TODO)</button>
 		<button onclick={() => {new_rule()}}>Create new rule from selected attributes</button>
@@ -102,6 +106,9 @@
 table, th, td {
 	border-style: solid;
 	border-width: 1px;
+}
+p {
+	margin: 0;
 }
 table {
 	table-layout: fixed;
@@ -123,7 +130,15 @@ button {
 	overflow: auto;
 	max-height: 3.5rem;
 }
-.button-container {
+.filepath {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	min-width: 0;
+	flex-grow: 1;
+}
+.horiz {
+	width: 100%;
 	display: flex;
 }
 .toggle-icon {

@@ -56,6 +56,7 @@
 #rules, #history {
 	width: 100%;
 	padding: 1rem;
+	min-width: 0;
 }
 #history {
 	display: flex;
