@@ -16,6 +16,80 @@
  * }} FinishedDownload
  */
 
+/**
+ * @param {FileAttrs} attrs
+ * @param {string} location
+ * @returns {Promise<{
+ *     dest: string,
+ *     status: 'not_moved' | 'moved' | 'failed',
+ *     location: string,
+ *     move_error: string | undefined
+ * }>}
+ */
+async function try_move(attrs, location) {
+	/** @type SerializedRule[] */
+	const rules = (await browser.storage.local.get({
+		rules: []
+	}))['rules']
+
+	const rule = rules
+		.map(rule_obj => new Rule(rule_obj))
+		.find(rule => rule.matches(attrs))
+
+	if (rule === undefined) {
+		return {
+			dest: location,
+			status: 'not_moved',
+			location: location,
+			move_error: undefined
+		}
+	}
+
+	const dest = rule.get_path(attrs)
+
+	console.log('These attrs:')
+	console.log(attrs)
+	console.log(`Matches this rule:`)
+	console.log(rule.serialize())
+	console.log(`Moving to ${dest}`)
+
+	try {
+		const response = await browser.runtime.sendNativeMessage('gcu_file_mover', {
+			file: location,
+			dest: dest,
+			options: {
+				create_dest_folder: false,
+				replace_dest: false,
+				delete_on_error: true
+			}
+		})
+		if (response.type === 'success') {
+			return {
+				dest: dest,
+				status: 'moved',
+				location: dest,
+				move_error: undefined
+			}
+		}
+		else {
+			return {
+				dest: dest,
+				status: 'failed',
+				location: location,
+				move_error: response
+			}
+		}
+	}
+	catch (e) {
+		return {
+			dest: dest,
+			status: 'failed',
+			location: location,
+			move_error: `${e}`
+		}
+	}
+}
+
 browser.downloads.onChanged.addListener(async (item) => {
 	if (!('state' in item)) {
 		return false
@@ -46,57 +120,11 @@ browser.downloads.onChanged.addListener(async (item) => {
 		}
 	}
 
-	console.log(`Found download with attrs:`)
-	console.log(attrs)
+	const move_result = await try_move(attrs, download_item.filename)
 
-	/** @type SerializedRule[] */
-	const rules = (await browser.storage.local.get({
-		rules: []
-	}))['rules']
-
-	const rule = rules
-		.map(rule_obj => new Rule(rule_obj))
-		.find(rule => rule.matches(attrs))
-
-	/** @type {'not_moved'|'moved'|'failed'} */
-	let status = 'not_moved'
-	let dest = download_item.filename
-	let move_error
-
-	if (rule !== undefined) {
-		dest = rule.get_path(attrs)
-
-		console.log(`Matches this rule:`)
-		console.log(rule.serialize())
-		console.log(`Moving to ${dest}`)
-
-		try {
-			const response = await browser.runtime.sendNativeMessage('gcu_file_mover', { file: download_item.filename,
-				dest: dest,
-				options: {
-					create_dest_folder: false,
-					replace_dest: false,
-					delete_on_error: true
-				}
-			})
-			if (response.type === 'success') {
-				status = 'moved'
-				console.log(`Moved to ${dest}`)
-			}
-			else {
-				status = 'failed'
-				move_error = response
-			}
-		}
-		catch (e) {
-			status = 'failed'
-			move_error = `${e}`
-		}
-	}
-
-	if (status === 'failed') {
+	if (move_result.status === 'failed') {
 		console.log('An error occured:')
-		console.log(move_error)
+		console.log(move_result.move_error)
 	}
 
 	/** @type FinishedDownload */
@@ -107,10 +135,7 @@ browser.downloads.onChanged.addListener(async (item) => {
 			start_time: /** @type string */ (download_item.startTime),
 			end_time: /** @type string */ new Date().toISOString(),
 			reproduce: enqueued !== undefined? enqueued.meta.reproduce: undefined,
-			dest: dest,
-			status: status,
-			move_error: move_error,
-			location: status === 'moved'? dest: download_item.filename
+			...move_result
 		}
 	}
 
@@ -125,7 +150,4 @@ browser.downloads.onChanged.addListener(async (item) => {
 	await browser.storage.local.set({
 		history: history
 	})
-
-	if (rule === undefined) return
-
 })

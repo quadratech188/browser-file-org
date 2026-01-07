@@ -22,6 +22,23 @@
 			rules: $state.snapshot(rules)
 		})
 	}
+	/**
+	 * @param {FinishedDownload} record
+	 */
+	async function move_again(record) {
+		const result = await try_move(record.attrs, record.meta.location)
+		if (result.status === 'failed') {
+			console.log('An error occured:')
+			console.log(result.move_error)
+		}
+
+		// FIXME: This is purely visual and not written to storage
+		// TODO: Make Svelte $state work with browser.storage
+		record.meta = {
+			...record.meta,
+			...result
+		}
+	}
 </script>
 
 <div id="frame">
@@ -42,6 +59,7 @@
 		{#each history as record}
 		<div class="rule-container">
 			<Record record={record}
+				on_move_again={move_again}
 				on_new_rule={(r) => {rules.push(r)}}/>
 		</div>
 		{/each}

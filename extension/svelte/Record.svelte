@@ -1,6 +1,7 @@
 <script>
 	const {
 		record,
+		on_move_again = () => {},
 		on_new_rule = () => {}
 	} = $props()
 
@@ -95,7 +96,7 @@
 
 	<div class="horiz">
 		<button>Redownload (TODO)</button>
-		<button>Move again (TODO)</button>
+		<button onclick={() => on_move_again(record)}>Move again</button>
 		<button onclick={() => {new_rule()}}>Create new rule from selected attributes</button>
 	</div>
 </div>
