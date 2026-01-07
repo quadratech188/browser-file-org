@@ -27,6 +27,7 @@
 		}
 		/** @type SerializedRule */
 		const rule = {
+			id: crypto.randomUUID(),
 			conds,
 			dest: ''
 		}

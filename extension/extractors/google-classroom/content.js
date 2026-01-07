@@ -26,6 +26,7 @@ function add_rule_btn(div) {
 	btn.textContent = 'Make this Classroom into a Rule'
 	btn.addEventListener('click', async () => {
 		await add_rule(new Rule({
+			id: crypto.randomUUID(),
 			conds: {
 				classroom_id: get_classroom_id(window.location.href)
 			},

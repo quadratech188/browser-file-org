@@ -44,7 +44,7 @@
 			<button style="margin-left: 1rem"
 				onclick={save}>Save</button>
 		</div>
-		{#each rules as rule, index}
+		{#each rules as rule, index (rule.id)}
 		<div class="rule-container">
 			<Rule bind:serialized_rule={rules[index]}/>
 			<button onclick={() => {rules.splice(index, 1)}}>x</button>
@@ -52,6 +52,7 @@
 		{/each}
 	</div>
 	<div id="history">
+		<!-- TODO: Add ids to history -->
 		{#each history as record}
 		<div class="rule-container">
 			<Record record={record}

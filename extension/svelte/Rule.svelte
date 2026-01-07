@@ -1,5 +1,6 @@
 <script>
 	let { serialized_rule = $bindable({
+		id: crypto.randomUUID(),
 		conds: {},
 		dest: ''
 	})} = $props()

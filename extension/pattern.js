@@ -7,12 +7,15 @@
  * }} FileAttrs
  *
  * @typedef {{
+ *      id: string,
  * 	conds: Record<string, string>,
  * 	dest: string
  * }} SerializedRule
  */
 
 class Rule {
+	/** @type string */
+	id;
 	/** @type Map<string, RegExp> */
 	conds;
 	/** @type string */
@@ -21,7 +24,7 @@ class Rule {
 	/**
 	 * @param {SerializedRule} obj
 	 */
-	constructor(obj = {dest: '', conds: {}}) {
+	constructor(obj = {id: crypto.randomUUID(), dest: '', conds: {}}) {
 		this.dest = obj.dest
 		this.conds = new Map()
 
