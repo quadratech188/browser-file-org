@@ -14,6 +14,9 @@
 			checked_attrs[k] = e.target.checked
 		}
 	}
+
+	let error_opened = $state(false)
+
 	function new_rule() {
 		/** @type Record<string, string> */
 		const conds = {}
@@ -53,7 +56,39 @@
 		{/each}
 	</tbody>
 	</table>
+
 	<hr>
+	<p>
+		<span>Status:</span>
+		{#if record.meta.status === 'moved'}
+		<span style="color: green">Moved</span>
+		{:else if record.meta.status === 'not_moved'}
+		<span style="color: green">Not moved</span>
+		{:else}
+		<span style="color: red">Failed</span>
+		<span
+			role="button"
+			tabindex="0"
+			class="toggle-icon"
+			onclick={() => {error_opened = !error_opened}}
+			onkeydown={(e) => {
+				if (e.key == 'Enter') {
+					error_opened = !error_opened
+				}
+			}}>
+			{error_opened ? '\u25B4' : '\u25BE'}
+		</span>
+
+		{#if error_opened}
+		<br>
+		<span class="error-text">
+		| {record.meta.move_error}
+		</span>
+		{/if}
+		{/if}
+
+	</p>
+
 	<div class="button-container">
 		<button>Redownload (TODO)</button>
 		<button>Move again (TODO)</button>
@@ -90,5 +125,13 @@ button {
 }
 .button-container {
 	display: flex;
+}
+.toggle-icon {
+    cursor: pointer;
+    user-select: none;
+    padding: 0 0.2rem;
+}
+.error-text {
+    font-family: monospace;
 }
 </style>
