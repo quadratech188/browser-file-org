@@ -32,11 +32,15 @@ async function try_move(attrs, location) {
 		rules: []
 	}))['rules']
 
+	console.log('These attrs:')
+	console.log(attrs)
+
 	const rule = rules
 		.map(rule_obj => new Rule(rule_obj))
 		.find(rule => rule.matches(attrs))
 
 	if (rule === undefined) {
+		console.log('Failed to match anything')
 		return {
 			dest: location,
 			status: 'not_moved',
@@ -47,20 +51,18 @@ async function try_move(attrs, location) {
 
 	const dest = rule.get_path(attrs)
 
-	console.log('These attrs:')
-	console.log(attrs)
 	console.log(`Matches this rule:`)
 	console.log(rule.serialize())
-	console.log(`Moving to ${dest}`)
+	console.log(`Moving ${location} to ${dest}`)
 
 	try {
-		const response = await browser.runtime.sendNativeMessage('gcu_file_mover', {
+		const response = await browser.runtime.sendNativeMessage('browser_file_org_native', {
 			file: location,
 			dest: dest,
 			options: {
 				create_dest_folder: false,
 				replace_dest: false,
-				delete_on_error: true
+				delete_on_error: false
 			}
 		})
 		if (response.type === 'success') {
@@ -72,15 +74,19 @@ async function try_move(attrs, location) {
 			}
 		}
 		else {
+			console.log('Native Host returned error:')
+			console.log(response)
 			return {
 				dest: dest,
 				status: 'failed',
 				location: location,
-				move_error: response
+				move_error: response.message
 			}
 		}
 	}
 	catch (e) {
+		console.log('There was an error during messaging:')
+		console.log(e)
 		return {
 			dest: dest,
 			status: 'failed',
@@ -121,11 +127,6 @@ browser.downloads.onChanged.addListener(async (item) => {
 	}
 
 	const move_result = await try_move(attrs, download_item.filename)
-
-	if (move_result.status === 'failed') {
-		console.log('An error occured:')
-		console.log(move_result.move_error)
-	}
 
 	/** @type FinishedDownload */
 	const next = {

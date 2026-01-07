@@ -27,10 +27,6 @@
 	 */
 	async function move_again(record) {
 		const result = await try_move(record.attrs, record.meta.location)
-		if (result.status === 'failed') {
-			console.log('An error occured:')
-			console.log(result.move_error)
-		}
 
 		// FIXME: This is purely visual and not written to storage
 		// TODO: Make Svelte $state work with browser.storage
