@@ -42,3 +42,61 @@ async function handle_add_rule(rule) {
 		rules: rules
 	})
 }
+
+browser.downloads.onChanged.addListener(async (item) => {
+	if (!('state' in item)) {
+		return false
+	}
+	if (/** @type browser.downloads.StringDelta */ (item.state).current !== 'complete') {
+		return false
+	}
+
+	const download_id = item.id
+	const download_item = (await browser.downloads.search({id: download_id}))[0]
+
+	const key = `file_attrs:${download_id}`
+
+	const path = download_item.filename.split('/')
+	/** @type FileAttrs */
+	const attrs = {
+		filename: path[path.length - 1],
+		url: download_item.url
+	}
+
+	/** @type RequestedDownload */
+	const enqueued = (await browser.storage.local.get(key))[key]
+	await browser.storage.local.remove(key)
+
+	if (enqueued !== undefined) {
+		for (const [k, v] of Object.entries(enqueued.attrs)) {
+			attrs[k] = v
+		}
+	}
+
+	const move_result = await try_move(attrs, download_item.filename)
+
+	/** @type FinishedDownload */
+	const next = {
+		id: crypto.randomUUID(),
+		attrs: attrs,
+		meta: {
+			download_id: download_id,
+			start_time: /** @type string */ (download_item.startTime),
+			end_time: /** @type string */ new Date().toISOString(),
+			reproduce: enqueued !== undefined? enqueued.meta.reproduce: undefined,
+			...move_result
+		}
+	}
+
+	/** @type FinishedDownload[] */
+	const history = (await browser.storage.local.get({
+		history: []
+	}))['history']
+	history.push(next)
+	if (history.length > 1000) {
+		history.shift()
+	}
+	await browser.storage.local.set({
+		history: history
+	})
+})

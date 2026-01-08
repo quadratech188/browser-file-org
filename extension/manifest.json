@@ -34,9 +34,9 @@
 			"browser-polyfill.min.js",
 			"util.js",
 			"downloaders.js",
-			"background-listener.js",
 			"pattern.js",
-			"download-mover.js"
+			"download-mover.js",
+			"background-listener.js"
 
 		],
 		"service_worker": "background-actions.js"
