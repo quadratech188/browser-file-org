@@ -7,35 +7,46 @@
 	let rules = $state([])
 	/** @type FinishedDownload[] */
 	let history = $state([])
+	$inspect(history)
 
 	onMount(async () => {
-		rules = (await browser.storage.local.get({
-			rules: []
-		}))['rules']
-		history = (await browser.storage.local.get({
+		const data = await browser.storage.local.get({
+			rules: [],
 			history: []
-		}))['history']
+		})
+		rules = data.rules,
+		history = data.history
 	})
 
-	browser.storage.local.onChanged.addListener(console.log)
+	browser.storage.onChanged.addListener(async (e) => {
+		if (!('history_last_modified' in e)) return
+		const data = await browser.storage.local.get({
+			history: []
+		})
+		history = data.history
+	})
 
 	async function save() {
 		await browser.storage.local.set({
 			rules: $state.snapshot(rules)
 		})
 	}
+
 	/**
 	 * @param {FinishedDownload} record
 	 */
 	async function move_again(record) {
 		const result = await try_move(record.attrs, record.meta.location)
 
-		// FIXME: This is purely visual and not written to storage
-		// TODO: Make Svelte $state work with browser.storage
 		record.meta = {
 			...record.meta,
 			...result
 		}
+		// This doesn't trigger onChanged
+		await browser.storage.local.set({
+			history: $state.snapshot(history),
+			history_last_modified: Date.now()
+		})
 	}
 </script>
 

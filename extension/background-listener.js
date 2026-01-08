@@ -99,4 +99,11 @@ browser.downloads.onChanged.addListener(async (item) => {
 	await browser.storage.local.set({
 		history: history
 	})
+	// browser.storage.local.onChanged() only works for simple datatypes,
+	// so we have to watch for this instead :(
+	// Actually, onChanged() still fires if the underlying value is the same,
+	// so we don't have to worry about two things happening in the same millisecond
+	await browser.storage.local.set({
+		history_last_modified: Date.now()
+	})
 })
