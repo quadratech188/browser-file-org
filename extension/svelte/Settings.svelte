@@ -17,6 +17,8 @@
 		}))['history']
 	})
 
+	browser.storage.local.onChanged.addListener(console.log)
+
 	async function save() {
 		await browser.storage.local.set({
 			rules: $state.snapshot(rules)
@@ -52,8 +54,7 @@
 		{/each}
 	</div>
 	<div id="history">
-		<!-- TODO: Add ids to history -->
-		{#each history as record}
+		{#each history as record (record.id)}
 		<div class="rule-container">
 			<Record record={record}
 				on_move_again={move_again}

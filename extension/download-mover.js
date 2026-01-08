@@ -2,9 +2,10 @@
 
 /**
  * @typedef {{
+ * 	id: import("crypto").UUID
  * 	attrs: FileAttrs,
  * 	meta: {
- * 		id: number,
+ * 		download_id: number,
  * 		start_time: string,
  * 		end_time: string,
  * 		reproduce: DownloadConfig | undefined,
