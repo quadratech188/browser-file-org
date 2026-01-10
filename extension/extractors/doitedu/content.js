@@ -54,6 +54,7 @@
 					filename: filename
 				}
 			}, {
+				filename: filename,
 				doitedu_post: post,
 				doitedu_board: board
 			})
