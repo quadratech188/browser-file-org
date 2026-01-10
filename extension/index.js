@@ -5,7 +5,11 @@
 		{
 			url_pattern: 'https://classroom.google.com/.*',
 			extractor: 'google-classroom'
-		}
+		},
+		{
+			url_pattern: 'doitedu.kr/bbs_shop/',
+			extractor: 'doitedu'
+		},
 	]
 
 	const url = window.location.href

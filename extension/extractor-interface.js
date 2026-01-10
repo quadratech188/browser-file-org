@@ -1,7 +1,8 @@
 /**
  * @typedef {{
- *	type: 'tab'|'browser',
- *	args: any
+ *     type: 'tab', args: string
+ * } | {
+ *     type: 'browser', args: browser.downloads._DownloadOptions
  * }} DownloadConfig
  *
  * @typedef {{
