@@ -54,7 +54,7 @@
 		},
 		{
 			"resources": [
-				"extractors/google-classroom/content.js"
+				"extractors/*.js"
 			],
 			"matches": ["<all_urls>"]
 		}
