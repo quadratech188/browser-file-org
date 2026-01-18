@@ -54,7 +54,7 @@ async function handle_add_rule(rule) {
  * 		reproduce: DownloadConfig | undefined,
  * 		dest: string,
  * 		status: 'not_moved' | 'moved' | 'failed',
- * 		move_error: string | undefined,
+ * 		move_error: {type: string, message: string | undefined} | undefined,
  * 		location: string
  * 	}
  * }} FinishedDownload
