@@ -7,7 +7,7 @@
  *     dest: string,
  *     status: 'not_moved' | 'moved' | 'failed',
  *     location: string,
- *     move_error: string | undefined
+ *     move_error: {type: string, message: string | undefined} | undefined
  * }>}
  */
 async function try_move(attrs, location) {
@@ -41,15 +41,13 @@ async function try_move(attrs, location) {
 
 	try {
 		const response = await browser.runtime.sendNativeMessage('browser_file_org_native', {
-			file: location,
+			origin: location,
 			dest: dest,
-			options: {
-				create_dest_folder: false,
-				replace_dest: false,
+			opts: {
 				delete_on_error: false
 			}
 		})
-		if (response.type === 'success') {
+		if ('Ok' in response) {
 			return {
 				dest: dest,
 				status: 'moved',
@@ -59,12 +57,12 @@ async function try_move(attrs, location) {
 		}
 		else {
 			console.log('Native Host returned error:')
-			console.log(response)
+			console.log(response.Err)
 			return {
 				dest: dest,
 				status: 'failed',
 				location: location,
-				move_error: response.message
+				move_error: response.Err
 			}
 		}
 	}
@@ -75,7 +73,10 @@ async function try_move(attrs, location) {
 			dest: dest,
 			status: 'failed',
 			location: location,
-			move_error: `${e}`
+			move_error: {
+				type: 'messaging',
+				message: `${e}`
+			}
 		}
 	}
 }
