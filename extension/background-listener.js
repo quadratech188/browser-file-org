@@ -68,29 +68,37 @@ browser.downloads.onChanged.addListener(async (item) => {
 		return false
 	}
 
-	const download_id = item.id
-	const download_item = (await browser.downloads.search({id: download_id}))[0]
-
-	const key = `file_attrs:${download_id}`
+	const download_item = (await browser.downloads.search({id: item.id}))[0]
 
 	const path = download_item.filename.split('/')
 	/** @type FileAttrs */
-	const attrs = {
+	let attrs = {
 		filename: path[path.length - 1],
 		url: download_item.url
 	}
-
 	if (download_item.referrer !== undefined) {
 		attrs.referrer = download_item.referrer
 	}
 
+	const page_key = `page_attrs:${item.id}`
+	/** @type Record<string, string> */
+	const page_attrs = (await browser.storage.local.get(page_key))[page_key]
+	await browser.storage.local.remove(page_key)
+	if (page_attrs != undefined) {
+		attrs = {
+			...attrs,
+			...page_attrs
+		}
+	}
+
+	const key = `file_attrs:${item.id}`
 	/** @type RequestedDownload */
 	const enqueued = (await browser.storage.local.get(key))[key]
 	await browser.storage.local.remove(key)
-
 	if (enqueued !== undefined) {
-		for (const [k, v] of Object.entries(enqueued.attrs)) {
-			attrs[k] = v
+		attrs = {
+			...attrs,
+			...enqueued.attrs
 		}
 	}
 
@@ -101,7 +109,7 @@ browser.downloads.onChanged.addListener(async (item) => {
 		id: crypto.randomUUID(),
 		attrs: attrs,
 		meta: {
-			download_id: download_id,
+			download_id: item.id,
 			start_time: /** @type string */ (download_item.startTime),
 			end_time: /** @type string */ new Date().toISOString(),
 			reproduce: enqueued !== undefined? enqueued.meta.reproduce: undefined,

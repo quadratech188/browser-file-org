@@ -10,6 +10,10 @@
 			url_pattern: 'doitedu.kr/bbs_shop/',
 			extractor: 'doitedu'
 		},
+		{
+			url_pattern: /band\.us/,
+			extractor: 'band'
+		},
 	]
 
 	const url = window.location.href

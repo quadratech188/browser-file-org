@@ -8,7 +8,8 @@
 		"downloads",
 		"nativeMessaging",
 		"storage",
-		"tabs"
+		"tabs",
+		"webRequest"
 	],
 
 	"content_scripts": [
@@ -36,6 +37,7 @@
 			"downloaders.js",
 			"pattern.js",
 			"download-mover.js",
+			"page_attrs.js",
 			"background-listener.js"
 
 		],

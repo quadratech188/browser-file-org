@@ -9,6 +9,7 @@
 	const board_code = url.searchParams.get('board_code')
 	const board_idx = url.searchParams.get('idx')
 
+
 	if (!board_code || !board_idx) {
 		return
 	}
@@ -20,6 +21,11 @@
 
 	const post = /** @type Text */ (header.childNodes[2]).data.trim()
 	const board = /** @type HTMLSpanElement */ (header.childNodes[1]).innerText
+
+	set_page_attrs({
+		doitedu_post: post,
+		doitedu_board: board
+	})
 
 	const id_regexp = new RegExp(/javascript:file_download\((?<id>[0-9]+)\)/)
 	for (const p of frame.children) {
@@ -54,9 +60,6 @@
 					filename: filename
 				}
 			}, {
-				filename: filename,
-				doitedu_post: post,
-				doitedu_board: board
 			})
 		})
 	}
