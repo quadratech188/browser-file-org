@@ -98,6 +98,7 @@
 #history {
 	display: flex;
 	flex-direction: column-reverse;
+	justify-content: flex-end;
 }
 .rule-container {
 	margin-bottom: 1rem;
