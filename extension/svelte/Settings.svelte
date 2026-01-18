@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte'
 	import Rule from './Rule.svelte'
 	import Record from './Record.svelte'
+	import {dndzone} from "svelte-dnd-action";
 
 	/** @type SerializedRule[] */
 	let rules = $state([])
@@ -48,6 +49,13 @@
 			history_last_modified: Date.now()
 		})
 	}
+
+	function handle_dnd_consider(e) {
+		rules = e.detail.items
+	}
+	function handle_dnd_finalize(e) {
+		rules = e.detail.items
+	}
 </script>
 
 <div id="frame">
@@ -57,12 +65,14 @@
 			<button style="margin-left: 1rem"
 				onclick={save}>Save</button>
 		</div>
+		<section use:dndzone="{{items: rules}}" onconsider="{handle_dnd_consider}" onfinalize="{handle_dnd_finalize}">
 		{#each rules as rule, index (rule.id)}
 		<div class="rule-container">
 			<Rule bind:serialized_rule={rules[index]}/>
 			<button onclick={() => {rules.splice(index, 1)}}>x</button>
 		</div>
 		{/each}
+		</section>
 	</div>
 	<div id="history">
 		{#each history as record (record.id)}
