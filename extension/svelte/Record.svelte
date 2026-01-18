@@ -23,7 +23,8 @@
 		const conds = {}
 		for (const [k, v] of Object.entries(record.attrs)) {
 			if (!checked_attrs[k]) continue
-			conds[k] = v
+			// RegExp.escape() messes with the first char
+			conds[k] = RegExp.escape(` ${v}`).slice(4)
 		}
 		/** @type SerializedRule */
 		const rule = {
