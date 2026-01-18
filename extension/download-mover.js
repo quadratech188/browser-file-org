@@ -1,23 +1,6 @@
 // @ts-check
 
 /**
- * @typedef {{
- * 	id: import("crypto").UUID
- * 	attrs: FileAttrs,
- * 	meta: {
- * 		download_id: number,
- * 		start_time: string,
- * 		end_time: string,
- * 		reproduce: DownloadConfig | undefined,
- * 		dest: string,
- * 		status: 'not_moved' | 'moved' | 'failed',
- * 		move_error: string | undefined,
- * 		location: string
- * 	}
- * }} FinishedDownload
- */
-
-/**
  * @param {FileAttrs} attrs
  * @param {string} location
  * @returns {Promise<{

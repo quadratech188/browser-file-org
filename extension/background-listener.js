@@ -43,6 +43,23 @@ async function handle_add_rule(rule) {
 	})
 }
 
+/**
+ * @typedef {{
+ * 	id: import("crypto").UUID
+ * 	attrs: FileAttrs,
+ * 	meta: {
+ * 		download_id: number,
+ * 		start_time: string,
+ * 		end_time: string,
+ * 		reproduce: DownloadConfig | undefined,
+ * 		dest: string,
+ * 		status: 'not_moved' | 'moved' | 'failed',
+ * 		move_error: string | undefined,
+ * 		location: string
+ * 	}
+ * }} FinishedDownload
+ */
+
 browser.downloads.onChanged.addListener(async (item) => {
 	if (!('state' in item)) {
 		return false
@@ -61,6 +78,10 @@ browser.downloads.onChanged.addListener(async (item) => {
 	const attrs = {
 		filename: path[path.length - 1],
 		url: download_item.url
+	}
+
+	if (download_item.referrer !== undefined) {
+		attrs.referrer = download_item.referrer
 	}
 
 	/** @type RequestedDownload */
