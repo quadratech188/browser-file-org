@@ -19,13 +19,34 @@
 		return
 	}
 
-	const post = /** @type Text */ (header.childNodes[2]).data.trim()
-	const board = /** @type HTMLSpanElement */ (header.childNodes[1]).innerText
+	const attrs = {}
 
-	set_page_attrs({
-		doitedu_post: post,
-		doitedu_board: board
-	})
+	const category = document.querySelector('.sub_title_01')?.querySelector('h1')
+	if (category) {
+		attrs.category = category.innerText
+	}
+
+	const board = document.querySelector('.sub_subject')
+	if (board) {
+		attrs.board = /** @type HTMLHeadingElement */ (board).innerText
+	}
+
+	if (header.childNodes.length === 3) {
+		attrs.tag = /** @type HTMLSpanElement */ (header.childNodes[1]).innerText
+		attrs.post = /** @type Text */ (header.childNodes[2]).data.trim()
+	}
+	if (header.childNodes.length === 1) {
+		attrs.post = header.innerText
+	}
+	
+	console.log(attrs)
+
+	/** @type Record<string, string> */
+	const prefixed_attrs = {}
+	for (const [k, v] of Object.entries(attrs)) {
+		prefixed_attrs[`doitedu_${k}`] = v
+	}
+	set_page_attrs(prefixed_attrs)
 
 	const id_regexp = new RegExp(/javascript:file_download\((?<id>[0-9]+)\)/)
 	for (const p of frame.children) {
