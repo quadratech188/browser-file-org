@@ -33,41 +33,56 @@ function map_queue_pop(map, k) {
 }
 
 /**
- * @param {number} tab_id
+ * @param {browser.webRequest._OnBeforeRequestDetails} details
  * @returns Record<string, string>
  */
-async function get_attrs(tab_id) {
-	if (tab_id === -1) return {}
-	return await browser.tabs.sendMessage(tab_id, null).catch(_ => {
-		console.log(`Failed to message tab ${tab_id}`)
-		return {}
-	})
+async function get_attrs(details) {
+	let result = {}
+
+	if (details.documentUrl) {
+		result.document_url = details.documentUrl
+	}
+	if (details.originUrl) {
+		result.origin_url = details.originUrl
+	}
+
+	if (details.tabId !== -1) {
+		result = {
+			...result,
+			...await browser.tabs.sendMessage(details.tabId, null).catch(_ => {
+				console.log(`Failed to message tab ${details.tabId}`)
+				return {}
+			})
+		}
+	}
+	return result
 }
 
 /**
  * @param {number} download_id
- * @param {number} tab_id
+ * @param {browser.webRequest._OnBeforeRequestDetails} details
  */
-async function submit(download_id, tab_id) {
+async function submit(download_id, details) {
 	const key = `page_attrs:${download_id}`
 	const delta = {}
 
 	// TODO: Figure out a way to call this function earlier
-	delta[key] = await get_attrs(tab_id)
+	delta[key] = await get_attrs(details)
 
-	console.log(delta)
 	await browser.storage.local.set(delta)
 }
 
+// Hope that the request returns and the download is created before the service worker shuts down
+
 /** @type Map<string, number[]> */
 const l = new Map()
-/** @type Map<string, number[]> */
+/** @type Map<string, browser.webRequest._OnBeforeRequestDetails[]> */
 const r = new Map()
 
 browser.downloads.onCreated.addListener(async item => {
-	const tab_id = map_queue_pop(r, item.url)
-	if (tab_id !== undefined) {
-		await submit(item.id, tab_id)
+	const req_details = map_queue_pop(r, item.url)
+	if (req_details !== undefined) {
+		await submit(item.id, req_details)
 		return
 	}
 	map_queue_push(l, item.url, item.id)
@@ -75,13 +90,13 @@ browser.downloads.onCreated.addListener(async item => {
 		map_queue_pop(l, item.url)
 	}, 1000)
 })
-browser.webRequest.onHeadersReceived.addListener(details => {(async () => {
+browser.webRequest.onBeforeRequest.addListener(details => {(async () => {
 	const down_id = map_queue_pop(l, details.url)
 	if (down_id !== undefined) {
-		await submit(down_id, details.tabId)
+		await submit(down_id, details)
 		return
 	}
-	map_queue_push(r, details.url, details.tabId)
+	map_queue_push(r, details.url, details)
 	setTimeout(() => {
 		map_queue_pop(r, details.url)
 	}, 1000)
