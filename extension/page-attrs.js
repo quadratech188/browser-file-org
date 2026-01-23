@@ -33,7 +33,7 @@ function map_queue_pop(map, k) {
 }
 
 /**
- * @param {browser.webRequest._OnBeforeRequestDetails} details
+ * @param {browser.webRequest._OnHeadersReceivedDetails} details
  * @returns Record<string, string>
  */
 async function get_attrs(details) {
@@ -60,7 +60,7 @@ async function get_attrs(details) {
 
 /**
  * @param {number} download_id
- * @param {browser.webRequest._OnBeforeRequestDetails} details
+ * @param {browser.webRequest._OnHeadersReceivedDetails} details
  */
 async function submit(download_id, details) {
 	const key = `page_attrs:${download_id}`
@@ -76,7 +76,7 @@ async function submit(download_id, details) {
 
 /** @type Map<string, number[]> */
 const l = new Map()
-/** @type Map<string, browser.webRequest._OnBeforeRequestDetails[]> */
+/** @type Map<string, browser.webRequest._OnHeadersReceivedDetails[]> */
 const r = new Map()
 
 browser.downloads.onCreated.addListener(async item => {
@@ -90,7 +90,7 @@ browser.downloads.onCreated.addListener(async item => {
 		map_queue_pop(l, item.url)
 	}, 1000)
 })
-browser.webRequest.onBeforeRequest.addListener(details => {(async () => {
+browser.webRequest.onHeadersReceived.addListener(details => {(async () => {
 	const down_id = map_queue_pop(l, details.url)
 	if (down_id !== undefined) {
 		await submit(down_id, details)
