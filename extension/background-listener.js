@@ -77,6 +77,9 @@ browser.downloads.onChanged.addListener(async (item) => {
 		attrs.referrer = download_item.referrer
 	}
 
+	// FIXME: Find smarter way to wait for page-attrs
+	await new Promise(r => setTimeout(r, 100));
+
 	const page_key = `page_attrs:${item.id}`
 	/** @type Record<string, string> */
 	const page_attrs = (await browser.storage.local.get(page_key))[page_key]
