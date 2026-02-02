@@ -50,7 +50,7 @@ async function try_move(attrs, origin) {
 			origin: origin,
 			dest: dest,
 			opts: {
-				dest_exists: 'delete_origin'
+				dest_exists: 'error'
 			}
 		})
 		if ('Ok' in response) {
