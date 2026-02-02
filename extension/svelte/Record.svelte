@@ -48,7 +48,9 @@
 		</tr>
 		{#each Object.entries(record.attrs) as [k, v]}
 		<tr>
-			<td>{k}</td>
+			<td>
+			<div class="scroll">{k}</div>
+			</td>
 			<td>
 			<div class="scroll">{v}</div>
 			</td>
