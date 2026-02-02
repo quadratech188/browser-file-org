@@ -46,7 +46,7 @@
 
 	"action": {
 		"default_title": "Configure Classroom Download Path",
-		"default_popup": "popup.html"
+		"default_popup": "settings.html"
 	},
 
 	"web_accessible_resources": [
