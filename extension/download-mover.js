@@ -1,21 +1,24 @@
 // @ts-check
 
 /**
- * @param {FileAttrs} attrs
- * @param {string} location
- * @returns {Promise<{
- *     dest: string,
- *     status: 'not_moved' | 'moved',
- *     location: string,
- *     move_error: undefined
+ *
+ * @typedef {{
+ *     type: 'not_moved' | 'moved',
+ *     location: string
  * } | {
- *     dest: string,
- *     status: 'failed',
+ *     type: 'deleted'
+ * } | {
+ *     type: 'failed',
  *     location: string,
- *     move_error: {type: string, message: string | undefined}
- * }>}
+ *     error: {type: string, message: string | undefined}
+ * }} MoveResult
+ *
+ * @param {FileAttrs} attrs
+ * @param {string} origin
+ * @returns {Promise<MoveResult>}
  */
-async function try_move(attrs, location) {
+
+async function try_move(attrs, origin) {
 	/** @type SerializedRule[] */
 	const rules = (await browser.storage.local.get({
 		rules: []
@@ -31,10 +34,8 @@ async function try_move(attrs, location) {
 	if (rule === undefined) {
 		console.log('Failed to match anything')
 		return {
-			dest: location,
-			status: 'not_moved',
-			location: location,
-			move_error: undefined
+			type: 'not_moved',
+			location: origin
 		}
 	}
 
@@ -42,32 +43,36 @@ async function try_move(attrs, location) {
 
 	console.log(`Matches this rule:`)
 	console.log(rule.serialize())
-	console.log(`Moving ${location} to ${dest}`)
+	console.log(`Moving ${origin} to ${dest}`)
 
 	try {
 		const response = await browser.runtime.sendNativeMessage('browser_file_org_native', {
-			origin: location,
+			origin: origin,
 			dest: dest,
 			opts: {
-				delete_on_error: false
+				dest_exists: 'delete_origin'
 			}
 		})
 		if ('Ok' in response) {
-			return {
-				dest: dest,
-				status: 'moved',
-				location: dest,
-				move_error: undefined
+			if (response.Ok === 'moved') {
+				return {
+					type: 'moved',
+					location: dest
+				}
+			}
+			else {
+				return {
+					type: 'deleted'
+				}
 			}
 		}
 		else {
 			console.log('Native Host returned error:')
 			console.log(response.Err)
 			return {
-				dest: dest,
-				status: 'failed',
-				location: location,
-				move_error: response.Err
+				type: 'failed',
+				location: origin,
+				error: response.Err
 			}
 		}
 	}
@@ -75,10 +80,9 @@ async function try_move(attrs, location) {
 		console.log('There was an error during messaging:')
 		console.log(e)
 		return {
-			dest: dest,
-			status: 'failed',
-			location: location,
-			move_error: {
+			type: 'failed',
+			location: origin,
+			error: {
 				type: 'messaging',
 				message: `${e}`
 			}

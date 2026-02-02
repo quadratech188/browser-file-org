@@ -52,10 +52,7 @@ async function handle_add_rule(rule) {
  * 		start_time: string,
  * 		end_time: string,
  * 		reproduce: DownloadConfig | undefined,
- * 		dest: string,
- * 		status: 'not_moved' | 'moved' | 'failed',
- * 		move_error: {type: string, message: string | undefined} | undefined,
- * 		location: string
+ * 		move_result: MoveResult
  * 	}
  * }} FinishedDownload
  */
@@ -113,7 +110,7 @@ browser.downloads.onChanged.addListener(async (item) => {
 			start_time: /** @type string */ (download_item.startTime),
 			end_time: /** @type string */ new Date().toISOString(),
 			reproduce: enqueued !== undefined? enqueued.meta.reproduce: undefined,
-			...move_result
+			move_result
 		}
 	}
 

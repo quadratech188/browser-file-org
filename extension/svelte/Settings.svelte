@@ -37,12 +37,9 @@
 	 * @param {FinishedDownload} record
 	 */
 	async function move_again(record) {
-		const result = await try_move(record.attrs, record.meta.location)
+		if (!('location' in record.meta.move_result)) return
+		record.meta.move_result = await try_move(record.attrs, record.meta.move_result.location)
 
-		record.meta = {
-			...record.meta,
-			...result
-		}
 		// This doesn't trigger onChanged
 		await browser.storage.local.set({
 			history: $state.snapshot(history),

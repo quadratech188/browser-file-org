@@ -1,18 +1,26 @@
-use serde;
-use std::{env, fs, io::{self, ErrorKind, Read, Write, stdout}, path};
+use serde::{self};
+use std::{env, fs, io::{self, Read, Write, stdout}, path};
 
 mod install;
 
 #[derive(serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum DestExistsBehavior {
+    Overwrite,
+    Error,
+    DeleteOrigin
+}
+
+#[derive(serde::Deserialize)]
 #[serde(default)]
 struct Opts {
-    delete_on_error: bool
+    dest_exists: DestExistsBehavior
 }
 
 impl Default for Opts {
     fn default() -> Self {
         Self {
-            delete_on_error: false
+            dest_exists: DestExistsBehavior::Error
         }
     }
 }
@@ -24,6 +32,8 @@ struct Request {
     opts: Opts
 }
 
+
+
 #[derive(serde::Serialize)]
 #[serde(tag = "type", content = "message", rename_all = "snake_case")]
 enum Error {
@@ -33,6 +43,17 @@ enum Error {
 
     Parsing(String),
     Unknown(String)
+}
+
+enum StateType {
+    Moved,
+    Deleted,
+    Error(Error)
+}
+
+struct State {
+    location: Option<path::PathBuf>,
+    r#type: StateType
 }
 
 impl From<io::Error> for Error {
@@ -59,29 +80,37 @@ fn write_message(msg: &String) -> io::Result<()> {
     Ok(())
 }
 
-fn move_file(request: &Request) -> Result<(), Error> {
+#[derive(serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+enum MoveResult {
+    Moved,
+    Deleted
+}
+
+fn move_file(request: &Request) -> Result<MoveResult, Error> {
     if !request.origin.exists() {
         return Err(Error::NoOrigin)
     }
-    if !request.dest.parent().map_or(false, |p| p.exists()) {
+    if request.dest.parent().map_or(false, |p| !p.exists()) {
         return Err(Error::NoDestDir)
     }
     if request.dest.exists() {
-        return Err(Error::DestExists)
+        match request.opts.dest_exists {
+            DestExistsBehavior::DeleteOrigin => {
+                fs::remove_file(&request.origin)?;
+                return Ok(MoveResult::Deleted)
+            }
+            DestExistsBehavior::Error => return Err(Error::DestExists),
+            DestExistsBehavior::Overwrite => fs::remove_file(&request.dest)?
+        }
     }
 
-    let e = match fs::rename(&request.origin, &request.dest) {
-        Ok(()) => {return Ok(())},
-        Err(e) => e
-    };
-
-    if e.kind() != ErrorKind::CrossesDevices {
-        return Err(Error::Unknown(e.to_string()))
+    if fs::rename(&request.origin, &request.dest).is_err() {
+        fs::copy(&request.origin, &request.dest)?;
+        fs::remove_file(&request.origin)?;
     }
-
-    fs::copy(&request.origin, &request.dest)?;
-    fs::remove_file(&request.origin)?;
-    Ok(())
+    
+    Ok(MoveResult::Moved)
 }
 
 fn main() -> io::Result<()> {
@@ -92,18 +121,12 @@ fn main() -> io::Result<()> {
         return Ok(())
     };
 
-    let result: Result<(), Error> = (|| {
+    let result: Result<MoveResult, Error> = (|| {
         let buf = read_message()?;
         let req: Request = serde_json::from_slice(&buf).map_err(|e| {
             Error::Parsing(e.to_string())
         })?;
-        move_file(&req).map_err(|e| {
-            if req.opts.delete_on_error {
-                fs::remove_file(req.origin).unwrap();
-            }
-            e
-        })?;
-        Ok(())
+        move_file(&req)
     })();
 
     write_message(&serde_json::to_string(&result).expect("Failed to serialize result"))

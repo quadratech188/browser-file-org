@@ -63,25 +63,38 @@
 	<hr>
 	<p>
 		<span>Status:</span>
-		{#if record.meta.status === 'moved'}
+		{#if record.meta.move_result.type === 'moved'}
 		<span style="color: green">Moved</span>
-		{:else if record.meta.status === 'not_moved'}
+		{:else if record.meta.move_result.type === 'not_moved'}
 		<span style="color: green">Not moved</span>
+		{:else if record.meta.move_result.type === 'deleted'}
+		<span style="color: green">Deleted</span>
 		{:else}
 		<span style="color: red">Failed </span>
-		<span style="font-family: monospace">({record.meta.move_error.type})</span>
+		<span style="font-family: monospace">({record.meta.move_result.error.type}): {record.meta.move_result.error.message || ''}</span>
 		{/if}
 	</p>
 	
+	{#if 'location' in record.meta.move_result}
 	<div class="horiz">
 		<p style="white-space: nowrap;">Last seen:&nbsp;</p>
-		<p class="filepath" title={record.meta.location}>{record.meta.location}</p>
+		<p class="filepath" title={record.meta.move_result.location}>
+			{record.meta.move_result.location}
+		</p>
 	</div>
+	{/if}
 
 	<div class="horiz">
-		<button>Redownload (TODO)</button>
-		<button onclick={() => on_move_again(record)}>Move again</button>
-		<button onclick={() => {new_rule()}}>Create new rule from selected attributes</button>
+		<button disabled={true}>Redownload (TODO)</button>
+
+		<button disabled={!('location' in record.meta.move_result)}
+			onclick={() => on_move_again(record)}>
+			Move again
+		</button>
+
+		<button onclick={() => {new_rule()}}>
+			Create new rule from selected attributes
+		</button>
 	</div>
 </div>
 <style>
