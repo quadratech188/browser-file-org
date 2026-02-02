@@ -5,9 +5,14 @@
  * @param {string} location
  * @returns {Promise<{
  *     dest: string,
- *     status: 'not_moved' | 'moved' | 'failed',
+ *     status: 'not_moved' | 'moved',
  *     location: string,
- *     move_error: {type: string, message: string | undefined} | undefined
+ *     move_error: undefined
+ * } | {
+ *     dest: string,
+ *     status: 'failed',
+ *     location: string,
+ *     move_error: {type: string, message: string | undefined}
  * }>}
  */
 async function try_move(attrs, location) {
