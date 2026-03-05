@@ -1,7 +1,7 @@
 // @ts-check
 
 const FILE_DIV_SELECTOR = 'div.luto0c, div.t2wIBc';
-const FILENAME_SELECTOR = 'div.mvRF3b';
+const FILENAME_SELECTOR = 'div.QDKOcc.UtdKPb.U0QIdc';
 const HEADER_LIST_SELECTOR = 'h1.Hwv4mb.rIyhE'
 
 /**
